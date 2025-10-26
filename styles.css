@@ -1,6 +1,8 @@
 /* Styling for index.html */
 
 html { scroll-behavior: smooth; }
+@keyframes line-in { to { transform:scaleX(1); } }
+@keyframes text-in { to { opacity:1; transform:translateY(0); } }
 
 :root {
     --bg-color: #121e28;
@@ -24,3 +26,25 @@ body {
     padding: 1.25rem;
 }
 /* ---------------------------------------------------------------------------- */
+
+/* HERO SECTION */
+header {
+    font-family: var(--poppins);
+    text-align: left;
+    color: #c9d1d9;
+    margin-top: 50px;
+}
+
+header h1 {
+    color: #f5f5f5;
+    font-size: 3.5rem;
+    margin-left: 50px;
+    opacity:0;
+    transform:translateX(30px);
+    animation:text-in 2000ms 120ms ease-out forwards;
+}
+
+#dot {
+    font-family: var(--poppins);
+    color: var(--accent-color);
+}
