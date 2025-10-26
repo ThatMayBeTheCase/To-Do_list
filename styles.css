@@ -1,0 +1,26 @@
+/* Styling for index.html */
+
+html { scroll-behavior: smooth; }
+
+:root {
+    --bg-color: #121e28;
+    --accent-color: #ff705a;
+    --text-color: #c9d1d9;
+    --muted-text: #8b949e;
+
+    --poppins: 'Poppins', sans-serif;
+}
+
+body {
+    background-image: radial-gradient(#273d50, #0d161d);
+    background-color: #0d161d;
+}
+
+.container {
+    background-color: #121e28;
+    border-radius: 10px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1.25rem;
+}
+/* ---------------------------------------------------------------------------- */
