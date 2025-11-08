@@ -19,8 +19,22 @@
 
         <!--TO-DO LIST-->
         <section>
-            <button>Add To-Do</button>
+            <form id="todo-form">
+                <label class="sr-only" for="todo-input">Add To-Do</label>
+                <input id="todo-input" name="todo" type="text" placeholder="What needs doing?" autocomplete="off" required>
+                <button type="submit">Add Task</button>
+            </form>
 
+            <div class="toolbar">
+                <p id="todo-counter">0 tasks</p>
+                <div class="filters">
+                    <button type="button" data-filter="all" class="active">All</button>
+                    <button type="button" data-filter="active">Active</button>
+                    <button type="button" data-filter="completed">Completed</button>
+                </div>
+            </div>
+
+            <ul id="todo-list"></ul>
         </section>
     </div>
 </body>
