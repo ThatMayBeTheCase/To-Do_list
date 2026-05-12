@@ -4,8 +4,6 @@ const list = document.querySelector('#todo-list');
 const counter = document.querySelector('#todo-counter');
 const filters = document.querySelectorAll('.filters button');
 
-const API_URL = '/api/tasks';
-
 let tasks = [];
 let currentFilter = 'all';
 
@@ -59,17 +57,9 @@ filters.forEach(button => {
     });
 });
 
-async function loadTasks() {
-  const response = await fetch(API_URL);
-  const data = await response.json();
-
-  tasks = data.map(task => ({
-    id: task.id,
-    text: task.title,
-    completed: task.completed
-  }));
-
-  render();
+function loadTasks() {
+    tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    render();
 }
 
 function render() {

@@ -1,6 +1,8 @@
 package se.todo.todoapi.service;
 
 import org.springframework.stereotype.Service;
+import se.todo.todoapi.dto.CategoryResponse;
+import se.todo.todoapi.dto.CreateCategoryRequest;
 import se.todo.todoapi.entity.Category;
 import se.todo.todoapi.repository.CategoryRepository;
 
@@ -15,11 +17,24 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
-    public Category createCategory(Category category) {
-        return categoryRepository.save(category);
+    public CategoryResponse createCategory(CreateCategoryRequest request) {
+        Category category = new Category(request.getName());
+        Category savedCategory = categoryRepository.save(category);
+
+        return mapToCategoryResponse(savedCategory);
     }
 
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    public List<CategoryResponse> getAllCategories() {
+        return categoryRepository.findAll()
+                .stream()
+                .map(this::mapToCategoryResponse)
+                .toList();
+    }
+
+    private CategoryResponse mapToCategoryResponse(Category category) {
+        return new CategoryResponse(
+                category.getId(),
+                category.getName()
+        );
     }
 }

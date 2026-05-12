@@ -1,7 +1,8 @@
 package se.todo.todoapi.controller;
 
 import org.springframework.web.bind.annotation.*;
-import se.todo.todoapi.entity.Category;
+import se.todo.todoapi.dto.CategoryResponse;
+import se.todo.todoapi.dto.CreateCategoryRequest;
 import se.todo.todoapi.service.CategoryService;
 
 import java.util.List;
@@ -17,12 +18,12 @@ public class CategoryController {
     }
 
     @PostMapping
-    public Category createCategory(@RequestBody Category category) {
-        return categoryService.createCategory(category);
+    public CategoryResponse createCategory(@RequestBody CreateCategoryRequest request) {
+        return categoryService.createCategory(request);
     }
 
     @GetMapping
-    public List<Category> getAllCategories() {
+    public List<CategoryResponse> getAllCategories() {
         return categoryService.getAllCategories();
     }
 }

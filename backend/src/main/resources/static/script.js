@@ -5,47 +5,81 @@ const counter = document.querySelector('#todo-counter');
 const filters = document.querySelectorAll('.filters button');
 
 const API_URL = '/api/tasks';
+const USERS_URL = '/api/users';
+const CATEGORIES_URL = '/api/categories';
 
 let tasks = [];
 let currentFilter = 'all';
+let defaultUserId = null;
+let defaultCategoryId = null;
 
 loadTasks();
 
-form.addEventListener('submit', event => {
+form.addEventListener('submit', async event => {
     event.preventDefault();
     const text = input.value.trim();
     if (!text) return;
 
-    const task = {
-        id: crypto.randomUUID(),
-        text,
-        completed: false,
-    };
+    const createdTask = await request(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+            title: text,
+            description: '',
+            completed: false,
+            userId: defaultUserId,
+            categoryId: defaultCategoryId
+        })
+    });
 
-    tasks.push(task);
-    persist();
+    tasks.push({
+        id: createdTask.id,
+        text: createdTask.title,
+        description: createdTask.description,
+        completed: createdTask.completed,
+        userId: createdTask.userId,
+        categoryId: createdTask.categoryId
+    });
+
     render();
     form.reset();
 });
 
-list.addEventListener('click', event => {
+list.addEventListener('click', async event => {
     const { target } = event;
+    const item = target.closest('li');
+
+    if (!item) return;
+
+    const id = Number(item.dataset.id);
+    const task = tasks.find(task => task.id === id);
+
+    if (!task) return;
 
     if (target.matches('[data-action="toggle"]')) {
-        const id = target.closest('li').dataset.id;
+        const updatedTask = await request(`${API_URL}/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                title: task.text,
+                description: task.description,
+                completed: !task.completed,
+                userId: task.userId,
+                categoryId: task.categoryId
+            })
+        });
+
         tasks = tasks.map(task =>
-            task.id === id ? { ...task, completed: !task.completed } : task
+            task.id === id ? mapTask(updatedTask) : task
         );
 
-        persist();
         render();
     }
 
     if (target.matches('[data-action="delete"]')) {
-        const id = target.closest('li').dataset.id;
-        tasks = tasks.filter(task => task.id !== id);
+        await request(`${API_URL}/${id}`, {
+            method: 'DELETE'
+        });
 
-        persist();
+        tasks = tasks.filter(task => task.id !== id);
         render();
     }
 });
@@ -60,16 +94,55 @@ filters.forEach(button => {
 });
 
 async function loadTasks() {
-  const response = await fetch(API_URL);
-  const data = await response.json();
+    await ensureDefaultData();
 
-  tasks = data.map(task => ({
-    id: task.id,
-    text: task.title,
-    completed: task.completed
-  }));
+    const data = await request(API_URL);
 
-  render();
+    tasks = data.map(mapTask);
+
+    render();
+}
+
+async function ensureDefaultData() {
+    let users = await request(USERS_URL);
+    let categories = await request(CATEGORIES_URL);
+
+    if (users.length === 0) {
+        const user = await request(USERS_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                name: 'Demo User',
+                email: 'demo@example.com'
+            })
+        });
+
+        users = [user];
+    }
+
+    if (categories.length === 0) {
+        const category = await request(CATEGORIES_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                name: 'General'
+            })
+        });
+
+        categories = [category];
+    }
+
+    defaultUserId = users[0].id;
+    defaultCategoryId = categories[0].id;
+}
+
+function mapTask(task) {
+    return {
+        id: task.id,
+        text: task.title,
+        description: task.description,
+        completed: task.completed,
+        userId: task.userId,
+        categoryId: task.categoryId
+    };
 }
 
 function render() {
@@ -83,7 +156,7 @@ function render() {
         .map(
             task => `
             <li data-id="${task.id}" class="${task.completed ? 'completed' : ''}">
-                <span>${task.text}</span>
+                <span>${escapeHtml(task.text)}</span>
                 <div>
                     <button data-action="toggle">
                         ${task.completed ? 'Undo' : 'Done'}
@@ -98,6 +171,32 @@ function render() {
     counter.textContent = `${tasks.length} task${tasks.length !== 1 ? 's' : ''} · ${remaining} left`;
 }
 
-function persist() {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
+async function request(url, options = {}) {
+    const response = await fetch(url, {
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        },
+        ...options
+    });
+
+    if (!response.ok) {
+        throw new Error(`Request failed: ${response.status}`);
+    }
+
+    if (response.status === 204) {
+        return null;
+    }
+
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
+}
+
+function escapeHtml(value) {
+    return value
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
 }

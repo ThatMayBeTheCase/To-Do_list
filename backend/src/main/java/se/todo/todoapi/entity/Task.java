@@ -2,8 +2,6 @@ package se.todo.todoapi.entity;
 
 import jakarta.persistence.*;
 
-import javax.lang.model.element.NestingKind;
-
 @Entity
 public class Task {
 

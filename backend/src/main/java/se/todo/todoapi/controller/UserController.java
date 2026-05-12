@@ -5,7 +5,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import se.todo.todoapi.entity.User;
+import se.todo.todoapi.dto.CreateUserRequest;
+import se.todo.todoapi.dto.UserResponse;
 import se.todo.todoapi.service.UserService;
 
 import java.util.List;
@@ -21,12 +22,12 @@ public class UserController {
     }
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
+    public UserResponse createUser(@RequestBody CreateUserRequest request) {
+        return userService.createUser(request);
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
         return userService.getAllUsers();
     }
 }
