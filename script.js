@@ -4,10 +4,10 @@ const list = document.querySelector('#todo-list');
 const counter = document.querySelector('#todo-counter');
 const filters = document.querySelectorAll('.filters button');
 
-let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+let tasks = [];
 let currentFilter = 'all';
 
-render();
+loadTasks();
 
 form.addEventListener('submit', event => {
     event.preventDefault();
@@ -56,6 +56,11 @@ filters.forEach(button => {
         render();
     });
 });
+
+function loadTasks() {
+    tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    render();
+}
 
 function render() {
     const filtered = tasks.filter(task => {
